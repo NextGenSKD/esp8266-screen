@@ -24,7 +24,7 @@ byte x;
 byte y;
 bool char_bit;
 
-int SCR1[32][8] = 
+int SCR1[40][8] = 
 {
     {  0, 0, 0, 0, 0, 0, 0, 99 },
     {  0, 0, 0, 0, 0, 0, 0, 99 },
@@ -57,11 +57,19 @@ int SCR1[32][8] =
     {  0, 0, 0, 0, 0, 0, 0, 99 },
     {  0, 0, 0, 0, 0, 0, 0, 99 },
     {  0, 0, 0, 0, 0, 0, 0, 99 },
-    {  0, 0, 0, 0, 0, 0, 0, 99 }
+    {  0, 0, 0, 0, 0, 0, 0, 99 },
+    {  0, 0, 0, 0, 0, 0, 0, 99 },
+    {  0, 0, 0, 0, 0, 0, 0, 99 },
+    {  0, 0, 0, 0, 0, 0, 0, 99 },
+    {  0, 0, 0, 0, 0, 0, 0, 99 },
+    {  0, 0, 0, 0, 0, 0, 0, 99 },
+    {  0, 0, 0, 0, 0, 0, 0, 99 },
+    {  0, 0, 0, 0, 0, 0, 0, 99 },
+    {  99, 99, 99, 99, 99, 99, 99, 99 }
 };
 
 
-char text[] = "1234";
+char text[] = "123 Test TEST !!! 1234567890   ";
 
 
 
@@ -87,6 +95,42 @@ void debug()   {
   // End Debug
   }  
 
+void print_symbol (int start_position, int symbolnum)
+      {
+        int txt_char=(int)text[symbolnum]-FONT_ARIAL_8_START_CHAR;
+      if (txt_char>850) {txt_char=-848;}
+    Serial.print("\r TXT_CHAR ");
+  Serial.print(txt_char);
+     Serial.print(" Start position ");
+  Serial.print(start_position);
+  int x=start_position;//*FONT_ARIAL_8_CHAR_HEIGHT;
+  for (byte l=0;l<8;l++)
+  {
+    byte charbitmap = (byte)font_arial_8[txt_char*FONT_ARIAL_8_CHAR_WIDTH+l];
+  
+    for (byte o=0;o<=7;o++) {  
+  
+    char_bit=charbitmap&1<<o;
+    if (char_bit)
+    {       
+        SCR1[x+o][l]=(0x88<<16)+(0x88<<8)+0x00;
+    } else 
+    {       SCR1[x+o][l]=(0x22<<16)+(0x0<<8)+(0x00);
+    }
+    }}
+}
+
+void scroll_screen()
+{
+   for (int x=0;x<=38;x++)
+    {
+      
+      for (int y=0;y<=7;y++)
+      { SCR1[x][y]=SCR1[x+1][y];
+        //SCR1[x+1][y] = 0;
+    }}
+}
+
 void setup() {
   Serial.begin(921600);
   FastLED.addLeds<WS2812, LED_PIN, GRB>(leds, LED_NUM);
@@ -99,66 +143,13 @@ void loop() {
 
 for (int i=0;i<sizeof(text)-1;i++)
 {
-  byte txt_char=text[i]-FONT_ARIAL_8_START_CHAR;
-  
-  for (byte l=0;l<=8;l++)
+ print_symbol(31,i);
+
+for (int u=0;u<8;u++)
   {
-    byte charbitmap = (byte)font_arial_8[txt_char*FONT_ARIAL_8_CHAR_HEIGHT+l];
-  
-    for (byte o=0;o<=7;o++) {  
-    x=i*FONT_ARIAL_8_CHAR_WIDTH;
-    y=l;
-    char_bit=charbitmap&1<<o;
-    if (char_bit)
-    {       
-      SCR1[x+o][y]=(0x00<<16)+(0xaa<<8)+0xaa;
-    
-    } else 
-    {       SCR1[x+o][y]=0;
-    }
 
-   //delay(100);
-  Serial.print("\r Text_char_ansi_number: ");
-  Serial.print(txt_char);
-  Serial.print(" char_count: ");
-  Serial.print(i);
-  Serial.print(" char_line: ");
-  Serial.print(l);
-  Serial.print(" char_bit: ");
-  Serial.print(o);
-  Serial.print(" x: ");
-  Serial.print(x+o);
-  Serial.print(" y: ");
-  Serial.print(y);
-  Serial.print(" charbitmap: ");
-  Serial.print(charbitmap);
-  Serial.print(" charbit: ");
-  Serial.print(char_bit);
-
-  Serial.print("    ");
-
-
-    }
-    }
-
-  }
-
-
-
-
-
-
-
-
-/* for (int x=0;x<=31;x++)
-    {
-      for (int y=0;y<=7;y++)
-      {SCR1[x][y]=(0xaa<<16)+(0xaa<<8)+0xaa;}
-    } 
-    /**/
-
-//print
-    for (int x=0;x<=31;)
+//print screen on device
+   for (int x=0;x<=31;)
     {
       
       for (int y=0;y<=7;)
@@ -171,29 +162,15 @@ for (int i=0;i<sizeof(text)-1;i++)
       y--;
       }
       x++;
-    }
-
-    // Stars
-    if (stars) {       
-      for (int i=0;i<=10;i++)   {
-          leds[random(LED_NUM)] = 128+(128<<8)+(128<<16);
-            }
-        }   //end start  
-      
-        //For test brightness     
-      if (test) {
-         for (int i=0;i<=LED_NUM;i++) 
-          { //if (counterbyte<=)
-            
-            //leds[i] = col_b+(col_r<<8)+(col_g<<16);} 
-            leds[i] = counterbyte+(255-counterbyte<<8)+(i<<16);} 
-                }
-        // end test brightness
+    } 
   FastLED.show();
-   //delay(100);
-  //debug();
+  delay (50);
   FastLED.clear();
-  counterbyte++;
- 
 
-}
+  scroll_screen();
+
+
+  }
+
+
+}}
